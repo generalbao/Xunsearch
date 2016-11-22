@@ -1,0 +1,72 @@
+2016年11月22日16:25:01
+
+11 安装  只能在linux mac 
+
+cd /usr/local/src
+mkdir xunsearch
+cd xunsearch
+
+wget http://www.xunsearch.com/download/xunsearch-full-latest.tar.bz2
+tar -xjf xunsearch-full-latest.tar.bz2
+
+cd xunsearch-xxx
+sh setup.sh         脚本文件
+提升要安装x在哪里
+/usr/local/src/xunsearch/xun
+
+cd /usr/local/src/xunsearch/xun
+
+22 启动
+bin/xs-ctl.sh restart/start
+
+
+33 配置防火墙 开放8383 83834端口
+vi /etc/sysconfig/iptables
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8383 -j ACCEPT #允许8383端口通过防火墙
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8484 -j ACCEPT #允许8384端口通过防火墙
+
+
+444 配置索引文件
+
+先在/usr/local/xunsearch/xun/sdk/php/app配置ini文件:source.ini(名字统一)
+project.name = source  (名字需相同  xx.ini)
+
+project.default_charset = utf-8
+
+server.index = ip:8383
+server.search = ip:8384
+
+[id]                   //数据库中的字段
+type = id             
+
+[product_name]        
+type = title
+
+[product_model]
+index = self
+
+55 建立索引文件 用命令生成
+
+/usr/local/xunsearch/sdk/php/util/Indexer.php --rebuild --source=mysql://yourdbuser:yourdbpass@localhost/yourdbname 
+--sql="select id,product_name,product_model from products" --project=source
+
+
+666 php文件
+
+
+require './lib/XS.php';   //  引入 xunsearch sdk
+if(isset($_POST['sub']) && $_POST['keyword'] != ''){
+    $keyword = trim($_POST['keyword']);    //接收关键词
+    $xs = new XS('source');    // demo  为项目名称，配置文件是：$sdk/app/demo.in i
+      //$index = $xs->index;   //  获取索引对象
+      $search = $xs->search;   //  获取搜索对象
+       $search->setLimit(20); 
+    $docs = $search->setQuery( $keyword)->search();
+    
+    var_dump($docs->name);
+    
+    
+    
+
+
+

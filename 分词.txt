@@ -1,0 +1,59 @@
+2016年11月22日19:27:04
+
+
+1. 用法简单说明
+
+创建分词对象
+
+$xs = new XS(...);  // 必须先创建一个 xs 实例，否则会抛出异常
+$tokenizer = new XSTokenizerScws;   // 直接创建实例
+
+获取分词结果
+
+调用 XSTokenizerScws::getResult 对参数指定的文本字符串执行分词， 并返回词汇数组，每个词汇包含 3 个元素，其中：
+
+off 表示这个词汇在源参数文本 $text 中的起始偏移位置
+attr 这个词汇的词性，动词名词 
+word 分好的词条
+
+$text = '即时到账';
+$words = $tokenizer->getResult($text);
+print_r($words);
+
+
+ [0] => Array
+        (
+            [off] => 0
+            [attr] => d
+            [word] => 即时
+        )
+
+    [1] => Array
+        (
+            [off] => 6
+            [attr] => v
+            [word] => 到
+        )
+		
+		
+提取重要词汇
+
+调用 XSToenizerScws::getTops 可以简单提取重要词汇，它支持三个参数， 返回的词汇数组元素和分词结果类似，只是把 off 替换为 times 表示这个词在文本中出现的总次数。
+
+$text = '迅搜(xunsearch)是优秀的开源全文检索解决方案';
+// 提取前 5 个重要词，要求词性必须是 n 或v 或 vn
+$tops = $tokenizer->getTops($text, 5, 'n,v,vn');
+print_r($tops);
+判断是否包含指定词性的词汇
+
+这项功能通过 XSTokenizerScws::hasWord 完成，主要目的是用于类似黑词判断。 您可以自制一个词典，并将黑词统一设置为一个独特的属性，比如 "@"， 那么就可以用该功能判断一段文本是否包含黑词。
+
+$text = '...';
+if ($tokenizer->hasWord($text, '@')) {
+    // 包含词性为 '@' 的词
+}
+else {
+    // 为包含词性为 '@' 的词
+}
+
+
